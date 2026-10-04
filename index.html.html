@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>منشئ صفحة المنتج</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--ink:#0A0E1A;--deep:#0F1628;--gold:#C49A3C;--gold2:#E8C46A;--white:#fff;--muted:#A8B4CC;--border:rgba(196,154,60,.2);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html,body{background:var(--ink);color:var(--white);font-family:'Cairo',sans-serif;min-height:100vh}
+.header{background:var(--deep);border-bottom:1px solid var(--border);padding:1.4rem 1.5rem;text-align:center}
+.header h1{font-size:1.25rem;font-weight:700;color:var(--gold2)}
+.header p{font-size:.78rem;color:var(--muted);margin-top:.25rem}
+.container{max-width:580px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+.sec-label{font-size:.75rem;color:var(--gold);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2rem 0 1rem;display:flex;align-items:center;gap:.5rem}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* upload */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:1.75rem;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--deep);display:block}
+.upload-area:hover{border-color:var(--gold)}
+.upload-area input{display:none}
+#imgPreview{width:100%;max-height:260px;object-fit:contain;border-radius:8px;margin-bottom:.75rem;display:none}
+.up-icon{font-size:2.2rem;margin-bottom:.4rem}
+.up-txt{font-size:.9rem;color:var(--muted)}
+.up-hint{font-size:.72rem;color:rgba(168,180,204,.45);margin-top:.2rem}
+
+/* fields */
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.75rem;color:var(--gold);font-weight:600;margin-bottom:.35rem}
+.field input,.field textarea{width:100%;background:var(--deep);border:1px solid var(--border);border-radius:8px;padding:.72rem 1rem;color:var(--white);font-family:'Cairo',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:72px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+
+/* color picker */
+.color-row{display:flex;align-items:center;gap:.9rem}
+.color-row input[type=color]{width:46px;height:46px;padding:4px;border-radius:8px;border:1px solid var(--border);background:var(--deep);cursor:pointer;flex-shrink:0}
+.presets{display:flex;gap:.45rem;flex-wrap:wrap}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s}
+.dot:hover{transform:scale(1.2);border-color:#fff}
+
+/* buttons */
+.btn-gen{width:100%;padding:1rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0E1A;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:2rem;transition:opacity .2s,transform .15s}
+.btn-gen:hover{opacity:.9;transform:translateY(-1px)}
+.btn-gen:active{transform:scale(.98)}
+.ok-msg{background:rgba(31,173,85,.12);border:1px solid rgba(31,173,85,.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#4ade80;text-align:center;margin-top:.85rem;display:none}
+
+/* QR box */
+.qr-box{background:var(--deep);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-top:2rem}
+.qr-box h3{font-size:.98rem;font-weight:700;color:var(--gold2);margin-bottom:.6rem}
+.qr-box p{font-size:.78rem;color:var(--muted);margin-bottom:1rem}
+.qr-out{display:flex;flex-direction:column;align-items:center;gap:1rem;margin-top:1rem}
+#qrDisplay canvas{border-radius:8px}
+.btn-sm{padding:.65rem 1.4rem;background:#fff;color:#0A0E1A;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn-sm:hover{opacity:.85}
+
+.fixed-contact{background:var(--deep);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.75rem}
+.fc-item{display:flex;align-items:center;gap:.75rem}
+.fc-icon{font-size:1.3rem}
+.fc-label{font-size:.68rem;color:var(--gold);font-weight:600;letter-spacing:.04em}
+.fc-val{font-size:.92rem;color:var(--white);font-weight:500}
+.fc-note{font-size:.72rem;color:rgba(168,180,204,.5);text-align:center;padding-top:.25rem;border-top:1px solid var(--border)}
+@media(max-width:420px){.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🛠️ منشئ صفحة المنتج</h1>
+  <p>احشي البيانات ← حمّل الصفحة ← الصق الرابط ← احصل على QR</p>
+</div>
+
+<div class="container">
+
+  <div class="sec-label">صورة المنتج</div>
+  <label class="upload-area" id="uploadArea">
+    <input type="file" id="imgInput" accept="image/*">
+    <img id="imgPreview" alt="preview">
+    <div id="upPh">
+      <div class="up-icon">🖼️</div>
+      <div class="up-txt">اضغط لرفع صورة المنتج</div>
+      <div class="up-hint">JPG · PNG · WEBP</div>
+    </div>
+  </label>
+
+  <div class="sec-label">معلومات المنتج</div>
+  <div class="field"><label>وصف المنتج (اختياري)</label><textarea id="fDesc" placeholder="اكتب وصف قصير..."></textarea></div>
+  <div class="row2">
+    <div class="field"><label>الخامة</label><input id="fMat" placeholder="مثال: دومنه"></div>
+    <div class="field"><label>اللون</label><input id="fColor" placeholder="مثال: أزرق ملكي"></div>
+  </div>
+  <div class="field"><label>تاريخ الصنع</label><input id="fDate" placeholder="3/10/2026"></div>
+
+  <div class="sec-label">بيانات التواصل</div>
+  <div class="fixed-contact">
+    <div class="fc-item">
+      <span class="fc-icon">🪡</span>
+      <div>
+        <div class="fc-label">الخراط</div>
+        <div class="fc-val">حمزة جمال</div>
+      </div>
+    </div>
+    <div class="fc-item">
+      <span class="fc-icon">🇪🇬</span>
+      <div>
+        <div class="fc-label">المنشأ</div>
+        <div class="fc-val">مصر</div>
+      </div>
+    </div>
+    <div class="fc-item">
+      <span class="fc-icon">📱</span>
+      <div>
+        <div class="fc-label">واتساب</div>
+        <div class="fc-val">201022822316</div>
+      </div>
+    </div>
+    <div class="fc-item">
+      <span class="fc-icon">📸</span>
+      <div>
+        <div class="fc-label">إنستجرام</div>
+        <div class="fc-val">hamzagamal835</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">لون الصفحة</div>
+  <div class="field">
+    <label>اختار اللون الرئيسي للصفحة</label>
+    <div class="color-row">
+      <input type="color" id="fAccent" value="#1B3F9E">
+      <div class="presets">
+        <div class="dot" style="background:#1B3F9E" onclick="setC('#1B3F9E')" title="أزرق"></div>
+        <div class="dot" style="background:#1a6b3a" onclick="setC('#1a6b3a')" title="أخضر"></div>
+        <div class="dot" style="background:#7B1F1F" onclick="setC('#7B1F1F')" title="أحمر"></div>
+        <div class="dot" style="background:#6B3A8F" onclick="setC('#6B3A8F')" title="بنفسجي"></div>
+        <div class="dot" style="background:#1a5f7a" onclick="setC('#1a5f7a')" title="تركواز"></div>
+        <div class="dot" style="background:#8B6914" onclick="setC('#8B6914')" title="ذهبي"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gen" onclick="generate()">⬇️ إنشاء صفحة المنتج وتحميلها</button>
+  <div class="ok-msg" id="okMsg">✅ تم إنشاء الصفحة! افتحها من التحميلات ثم ارفعها وانسخ رابطها.</div>
+
+  <div class="qr-box">
+    <h3>🔲 إنشاء QR Code</h3>
+    <p>بعد ما تنشر الصفحة على الإنترنت، الصق رابطها هنا عشان تعمل الـ QR</p>
+    <div class="field" style="margin:0"><input id="qrUrl" placeholder="https://رابط-صفحة-المنتج" type="url"></div>
+    <div class="qr-out">
+      <button class="btn-sm" onclick="makeQR()">إنشاء QR</button>
+      <div id="qrDisplay"></div>
+      <button class="btn-sm" id="btnDlQR" onclick="dlQR()" style="display:none">⬇️ تحميل QR</button>
+    </div>
+  </div>
+
+</div>
+
+<script id="TPL" type="text/plain">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>[[NAME]]</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0A0E1A;--deep:#0F1628;--accent:[[ACCENT]];--gold:#C49A3C;--gold2:#E8C46A;--cream:#F5EDD7;--white:#fff;--muted:#A8B4CC;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html,body{background:var(--ink);color:var(--white);font-family:'Cairo',sans-serif}
+.hero{position:relative;width:100%;background:var(--deep)}
+.hero-img{width:100%;height:auto;display:block}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,26,.05)0%,rgba(10,14,26,.1)55%,rgba(10,14,26,.82)80%,rgba(10,14,26,1)100%)}
+.hero-txt{position:absolute;bottom:0;right:0;left:0;padding:2rem 1.5rem 2.5rem;text-align:right}
+.badge{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);font-size:.72rem;font-weight:700;padding:.3rem .85rem;border-radius:2px;margin-bottom:.8rem}
+.pname{font-family:'Amiri',serif;font-size:clamp(2rem,8vw,3.2rem);font-weight:700;line-height:1.2;margin-bottom:.4rem}
+.psub{font-size:.95rem;color:var(--muted);font-weight:300;margin-bottom:.4rem}
+.pcarver{font-family:'Amiri',serif;font-size:1.6rem;font-weight:700;color:var(--gold2)}
+.body{background:var(--ink);padding:0 1.25rem 4rem}
+.specs{margin:0 auto;max-width:520px;padding:1.75rem 0 0}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.sc{background:var(--deep);border:1px solid rgba(196,154,60,.18);border-radius:6px;padding:1rem 1.1rem}
+.sc.full{grid-column:1/-1}
+.sl{font-size:.68rem;color:var(--gold);font-weight:600;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em}
+.sv{font-size:1rem;font-weight:600;color:var(--cream)}
+hr.div{max-width:520px;margin:2rem auto;border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(196,154,60,.3),transparent)}
+.ct{max-width:520px;margin:0 auto}
+.ct-t{font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:1rem}
+.btn{display:flex;align-items:center;justify-content:center;gap:.65rem;width:100%;padding:.95rem 1.25rem;border-radius:8px;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:600;text-decoration:none;margin-bottom:.75rem;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.97);opacity:.9}
+.bwa{background:#1FAD55;color:#fff}
+.big{background:linear-gradient(135deg,#833AB4,#C13584,#E1306C,#F56040);color:#fff}
+.bi{width:22px;height:22px;flex-shrink:0}
+.foot{text-align:center;padding:2.5rem 1rem 1rem;color:rgba(168,180,204,.4);font-size:.72rem}
+</style>
+</head>
+<body>
+<section class="hero">
+  <img class="hero-img" src="[[IMAGE]]" alt="[[NAME]]">
+  <div class="hero-ov"></div>
+  <div class="hero-txt">
+    <span class="badge">مصنوع يدوياً · [[ORIGIN]]</span>
+    <h1 class="pname">[[NAME]]</h1>
+    <p class="psub">[[SUBTITLE]]</p>
+    [[CARVER_LINE]]
+  </div>
+</section>
+<div class="body">
+  <div class="specs"><div class="sg">[[SPECS]][[DESC]]</div></div>
+  <hr class="div">
+  <div class="ct">
+    <p class="ct-t">للاستفسار والطلب</p>
+    [[WA_BTN]]
+    [[IG_BTN]]
+  </div>
+  <div class="foot">[[CARVER_FOOT]] · [[ORIGIN]]</div>
+</div>
+</body>
+</html>
+</script>
+
+<script>
+let imgB64 = '';
+
+document.getElementById('imgInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    resizeImg(ev.target.result, function(compressed){
+      imgB64 = compressed;
+      const p = document.getElementById('imgPreview');
+      p.src = compressed;
+      p.style.display = 'block';
+      document.getElementById('upPh').style.display = 'none';
+    });
+  };
+  reader.readAsDataURL(file);
+});
+
+function resizeImg(src, cb){
+  const img = new Image();
+  img.onload = function(){
+    const maxW = 900;
+    const ratio = Math.min(1, maxW / img.width);
+    const w = Math.round(img.width * ratio);
+    const h = Math.round(img.height * ratio);
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    cb(c.toDataURL('image/jpeg', 0.82));
+  };
+  img.src = src;
+}
+
+function setC(hex){ document.getElementById('fAccent').value = hex; }
+
+function g(id){ return document.getElementById(id).value.trim(); }
+
+function generate(){
+  if(!imgB64){ alert('ارفع صورة المنتج أولاً ⬆️'); return; }
+  const desc   = g('fDesc');
+  const mat    = g('fMat');
+  const color  = g('fColor');
+  const date   = g('fDate');
+  const name   = mat || 'منتج';
+  const origin = 'مصر 🇪🇬';
+  const carver = 'حمزة جمال';
+  const wa     = '201022822316';
+  const ig     = 'https://www.instagram.com/hamzagamal835';
+  const accent = g('fAccent') || '#1B3F9E';
+
+  let specs = '';
+  if(mat)   specs += `<div class="sc"><div class="sl">الخامة</div><div class="sv">${mat}</div></div>`;
+  if(origin)specs += `<div class="sc"><div class="sl">المنشأ</div><div class="sv">${origin}</div></div>`;
+  if(date)  specs += `<div class="sc"><div class="sl">تاريخ الصنع</div><div class="sv">${date}</div></div>`;
+  if(color) specs += `<div class="sc"><div class="sl">اللون</div><div class="sv">${color}</div></div>`;
+
+  const descHtml = desc ? `<div class="sc full"><div class="sl">الوصف</div><div class="sv" style="font-size:.9rem;font-weight:400">${desc}</div></div>` : '';
+  const subtitle = mat ? `خرط أصيل — ${mat}` : 'جودة عالية';
+  const carverLine = carver ? `<p class="pcarver">الصانع · ${carver}</p>` : '';
+  const carverFoot = carver || name;
+
+  const waBtn = wa ? `<a class="btn bwa" href="https://wa.me/${wa}" target="_blank" rel="noopener"><svg class="bi" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>تواصل عبر واتساب</a>` : '';
+  const igBtn = ig ? `<a class="btn big" href="${ig}" target="_blank" rel="noopener"><svg class="bi" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>تابعنا على إنستجرام</a>` : '';
+
+  let tpl = document.getElementById('TPL').textContent;
+  tpl = tpl
+    .replace(/\[\[NAME\]\]/g, name)
+    .replace(/\[\[IMAGE\]\]/g, imgB64)
+    .replace(/\[\[ACCENT\]\]/g, accent)
+    .replace(/\[\[ORIGIN\]\]/g, origin)
+    .replace(/\[\[SUBTITLE\]\]/g, subtitle)
+    .replace(/\[\[CARVER_LINE\]\]/g, carverLine)
+    .replace(/\[\[CARVER_FOOT\]\]/g, carverFoot)
+    .replace(/\[\[SPECS\]\]/g, specs)
+    .replace(/\[\[DESC\]\]/g, descHtml)
+    .replace(/\[\[WA_BTN\]\]/g, waBtn)
+    .replace(/\[\[IG_BTN\]\]/g, igBtn);
+
+  const blob = new Blob([tpl], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '.html';
+  a.click();
+  document.getElementById('okMsg').style.display = 'block';
+}
+
+function makeQR(){
+  const url = document.getElementById('qrUrl').value.trim();
+  if(!url){ alert('الصق الرابط أولاً'); return; }
+  const c = document.getElementById('qrDisplay');
+  c.innerHTML = '';
+  new QRCode(c,{text:url,width:220,height:220,colorDark:'#0A0E1A',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  document.getElementById('btnDlQR').style.display='inline-block';
+}
+
+function dlQR(){
+  setTimeout(()=>{
+    const cv = document.querySelector('#qrDisplay canvas');
+    if(cv){const a=document.createElement('a');a.download='QR.png';a.href=cv.toDataURL('image/png');a.click();}
+  },200);
+}
+</script>
+</body>
+</html>
